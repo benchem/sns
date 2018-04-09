@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import team.benchem.webapi.bean.MicroServiceInfo;
@@ -37,7 +34,7 @@ public class ServicesController {
      * @param args
      * @return
      */
-    @RequestMapping("/register")
+    @RequestMapping(value = "/register",method = RequestMethod.POST)
     public JSONObject register(@RequestBody JSONObject args) {
         try {
 
@@ -85,7 +82,7 @@ public class ServicesController {
      * @throws InvalidKeyException
      * @throws InvalidKeySpecException
      */
-    @RequestMapping("/unregister")
+    @RequestMapping(value = "/unregister",method = RequestMethod.POST)
     public JSONObject unregister(@RequestBody JSONObject args) throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, InvalidKeySpecException {
         JSONObject rs = new JSONObject();
         String token = args.getString("token");
@@ -113,7 +110,7 @@ public class ServicesController {
      *
      * @return
      */
-    @RequestMapping("/getlist")
+    @RequestMapping(value = "/getlist",method = RequestMethod.GET)
     public JSONArray getList() {
         JSONArray ja = new JSONArray();
         for (MicroServiceInfo microServiceInfo : microServiceInfoRepository.findAll()) {
@@ -123,5 +120,18 @@ public class ServicesController {
             ja.add(jo);
         }
         return ja;
+    }
+
+    /**
+     * 获取微服务详细信息
+     * http://yapi.lonntec.cn/project/20/interface/api/80
+     * @param key
+     * @return
+     */
+    public JSONObject getDetail(@RequestParam String key){
+        JSONObject rs = new JSONObject();
+        MicroServiceInfo microServiceInfo = microServiceInfoRepository.findByServiceName(key);
+        // todo 微服务实例
+        return  rs;
     }
 }
