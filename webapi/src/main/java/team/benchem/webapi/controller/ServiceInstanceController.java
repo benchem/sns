@@ -2,10 +2,7 @@ package team.benchem.webapi.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import team.benchem.webapi.bean.MicroServiceInfo;
 import team.benchem.webapi.bean.MicroServiceInstaceInfo;
 import team.benchem.webapi.repository.MicroServiceInfoRepository;
@@ -33,7 +30,7 @@ public class ServiceInstanceController {
      * @param args
      * @return
      */
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
+    @PostMapping("/register")
     public JSONObject register(@RequestBody JSONObject args) {
         JSONObject rs = new JSONObject();
         try {
@@ -50,7 +47,12 @@ public class ServiceInstanceController {
             }
             MicroServiceInstaceInfo microServiceInstaceInfo = microServiceInstaceInfoRepository.findByUrl(url);
             if (microServiceInstaceInfo != null) {
-                rs.put("msg", "url重复");
+                rs.put("id", microServiceInstaceInfo.getId());
+                rs.put("svc_key", microServiceInstaceInfo.getServiceKey());
+                rs.put("desc", microServiceInstaceInfo.getDesc());
+                rs.put("url", microServiceInstaceInfo.getUrl());
+                rs.put("timeout", microServiceInstaceInfo.getTimeout());
+                rs.put("weight", microServiceInstaceInfo.getWeight());
                 return rs;
             }
             MicroServiceInstaceInfo newMicroServiceInstaceInfo = new MicroServiceInstaceInfo();
@@ -79,7 +81,7 @@ public class ServiceInstanceController {
      * @param args
      * @return
      */
-    @RequestMapping(value = "/unregister", method = RequestMethod.POST)
+    @PostMapping("/unregister")
     public JSONObject unregister(@RequestBody JSONObject args) {
         try {
 
@@ -100,7 +102,7 @@ public class ServiceInstanceController {
                 rs.put("msg", "无效的svc_key");
                 return rs;
             }
-            String privateKeyStr = microServiceInfo.getRas_priKey();
+            String privateKeyStr = microServiceInfo.getRsa_priKey();
             String decryptUrl = RSAUtils.privateKeyDecrypt(token, privateKeyStr);
             if (decryptUrl != microServiceInstaceInfo.getUrl()) {
                 rs.put("msg", "token错误");

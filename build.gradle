@@ -2,7 +2,10 @@ buildscript {
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     }
-    repositories { maven { url 'http://maven.mipesoft.com:8081/content/groups/public' } }
+    repositories {
+//        maven { url 'http://maven.mipesoft.com:8081/content/groups/public' }
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+    }
 }
 
 subprojects {
@@ -15,7 +18,8 @@ subprojects {
 
     repositories {
         mavenLocal()
-        maven { url 'http://maven.mipesoft.com:8081/content/groups/public' }
+//        maven { url 'http://maven.mipesoft.com:8081/content/groups/public' }
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
         mavenCentral()
     }
 
