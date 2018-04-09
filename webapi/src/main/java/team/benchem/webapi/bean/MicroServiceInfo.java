@@ -10,15 +10,15 @@ import java.util.UUID;
 @Entity(name = "T_MICROSERVICE")
 public class MicroServiceInfo {
     @Id
-    @Column(name="FROWID")
+    @Column(name = "FROWID")
     private String id;
-    @Column(name="FSERVICENAME")
+    @Column(name = "FSERVICENAME")
     private String serviceName;
-    @Column(name="FRASPUBKEY")
+    @Column(name = "FRASPUBKEY", length = 2048)
     private String ras_pubKey;
-    @Column(name="FRASPRIKEY")
+    @Column(name = "FRASPRIKEY", length = 2048)
     private String ras_priKey;
-    @Column(name="FDESC")
+    @Column(name = "FDESC")
     private String desc;
 
     public MicroServiceInfo() {

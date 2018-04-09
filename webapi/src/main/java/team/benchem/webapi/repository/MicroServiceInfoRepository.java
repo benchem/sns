@@ -8,3 +8,4 @@ import team.benchem.webapi.bean.MicroServiceInfo;
 public interface MicroServiceInfoRepository extends CrudRepository<MicroServiceInfo, String> {
     MicroServiceInfo findByServiceName(String serviceName);
 }
+
