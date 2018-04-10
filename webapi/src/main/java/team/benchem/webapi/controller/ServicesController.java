@@ -1,14 +1,17 @@
 package team.benchem.webapi.controller;
 
 import com.alibaba.fastjson.JSONArray;
+import com.google.common.collect.Lists;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.web.bind.annotation.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import team.benchem.webapi.bean.AccessPermission;
 import team.benchem.webapi.bean.MicroServiceInfo;
 import team.benchem.webapi.bean.MicroServiceInstaceInfo;
+import team.benchem.webapi.repository.AccessPermissionRepository;
 import team.benchem.webapi.repository.MicroServiceInfoRepository;
 import team.benchem.webapi.repository.MicroServiceInstaceInfoRepository;
 import team.benchem.webapi.utils.RSAUtils;
@@ -21,6 +24,7 @@ import java.security.InvalidKeyException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.Map;
 
 @RestController
@@ -32,6 +36,9 @@ public class ServicesController {
 
     @Autowired
     MicroServiceInstaceInfoRepository microServiceInstaceInfoRepository;
+
+    @Autowired
+    AccessPermissionRepository accessPermissionRepository;
 
     /**
      * 微服务注册
@@ -146,19 +153,34 @@ public class ServicesController {
             rs.put("msg", "微服务KEY无效");
             return rs;
         }
-        rs.put("key",microServiceInfo.getServiceName());
-        rs.put("pubkey",microServiceInfo.getRsa_pubKey());
-        rs.put("desc",microServiceInfo.getDesc());
+        rs.put("key", microServiceInfo.getServiceName());
+        rs.put("pubkey", microServiceInfo.getRsa_pubKey());
+        rs.put("desc", microServiceInfo.getDesc());
         JSONArray ja = new JSONArray();
-        rs.put("items",ja);
-        for (MicroServiceInstaceInfo microServiceInstaceInfo :microServiceInstaceInfoRepository.findAllByServiceKey(key)){
+        rs.put("items", ja);
+        for (MicroServiceInstaceInfo microServiceInstaceInfo : microServiceInstaceInfoRepository.findAllByServiceKey(key)) {
             JSONObject subObj = new JSONObject();
-            subObj.put("url",microServiceInstaceInfo.getUrl());
-            subObj.put("timeout",microServiceInstaceInfo.getTimeout());
-            subObj.put("weight",microServiceInstaceInfo.getWeight());
+            subObj.put("url", microServiceInstaceInfo.getUrl());
+            subObj.put("timeout", microServiceInstaceInfo.getTimeout());
+            subObj.put("weight", microServiceInstaceInfo.getWeight());
             ja.add(subObj);
         }
 
+
+        Iterable<AccessPermission> accessPermissions = accessPermissionRepository.findAllByServceKey(key);
+        ArrayList<AccessPermission> accessPermissionArrayList = Lists.newArrayList(accessPermissions);
+        int accessType = accessPermissionArrayList.isEmpty() ? -1 : accessPermissionArrayList.get(0).getAccessType();
+        ja.clear();
+        rs.put("access_type", accessType);
+        rs.put("access_list", ja);
+        for (AccessPermission accessPermission:accessPermissionArrayList){
+            JSONObject subObj = new JSONObject();
+            subObj.put("caller_key",accessPermission.getCallerKey());
+            ja.add(subObj);
+        }
         return rs;
+
+
+
     }
 }
