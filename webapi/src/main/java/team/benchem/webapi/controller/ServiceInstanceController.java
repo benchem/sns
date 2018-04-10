@@ -3,24 +3,17 @@ package team.benchem.webapi.controller;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import team.benchem.webapi.bean.MicroServiceInfo;
-import team.benchem.webapi.bean.MicroServiceInstaceInfo;
-import team.benchem.webapi.repository.MicroServiceInfoRepository;
-import team.benchem.webapi.repository.MicroServiceInstaceInfoRepository;
+import team.benchem.webapi.entity.MicroServiceInfo;
+import team.benchem.webapi.entity.MicroServiceInstaceInfo;
+import team.benchem.webapi.service.SNSService;
 import team.benchem.webapi.utils.RSAUtils;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 @RestController
 @RequestMapping("/inst")
 public class ServiceInstanceController {
 
     @Autowired
-    MicroServiceInstaceInfoRepository microServiceInstaceInfoRepository;
-    @Autowired
-    MicroServiceInfoRepository microServiceInfoRepository;
+    SNSService snsService;
 
 
     /**
@@ -33,51 +26,39 @@ public class ServiceInstanceController {
     @PostMapping("/register")
     public JSONObject register(@RequestBody JSONObject args) {
         JSONObject rs = new JSONObject();
-        try {
-            String svcKey = args.getString("svc_key");
-            String desc = args.getString("desc");
-            String url = args.getString("url");
-            int timeout = args.getInteger("timeout");
-            int weight = args.getInteger("weight");
-            // todo 参数校验
-            MicroServiceInfo microServiceInfo = microServiceInfoRepository.findByServiceName(svcKey);
-            if (microServiceInfo == null) {
-                rs.put("msg", "无效的svc_key");
-                return rs;
-            }
-            MicroServiceInstaceInfo microServiceInstaceInfo = microServiceInstaceInfoRepository.findByUrl(url);
-            if (microServiceInstaceInfo != null) {
-                rs.put("id", microServiceInstaceInfo.getId());
-                rs.put("svc_key", microServiceInstaceInfo.getServiceKey());
-                rs.put("desc", microServiceInstaceInfo.getDesc());
-                rs.put("url", microServiceInstaceInfo.getUrl());
-                rs.put("timeout", microServiceInstaceInfo.getTimeout());
-                rs.put("weight", microServiceInstaceInfo.getWeight());
-                return rs;
-            }
-            MicroServiceInstaceInfo newMicroServiceInstaceInfo = new MicroServiceInstaceInfo();
-            newMicroServiceInstaceInfo.setServiceKey(svcKey);
-            newMicroServiceInstaceInfo.setDesc(desc);
-            newMicroServiceInstaceInfo.setUrl(url);
-            newMicroServiceInstaceInfo.setTimeout(timeout);
-            newMicroServiceInstaceInfo.setWeight(weight);
-            microServiceInstaceInfoRepository.save(newMicroServiceInstaceInfo);
-            rs.put("id", newMicroServiceInstaceInfo.getId());
-            rs.put("svc_key", newMicroServiceInstaceInfo.getServiceKey());
-            rs.put("desc", newMicroServiceInstaceInfo.getDesc());
-            rs.put("url", newMicroServiceInstaceInfo.getUrl());
-            rs.put("timeout", newMicroServiceInstaceInfo.getTimeout());
-            rs.put("weight", newMicroServiceInstaceInfo.getWeight());
-            return rs;
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
+
+        String svcKey = args.getString("svc_key");
+        String desc = args.getString("desc");
+        String url = args.getString("url");
+        int timeout = args.getInteger("timeout");
+        int weight = args.getInteger("weight");
+        // todo 参数校验
+        MicroServiceInfo microServiceInfo = snsService.MicroServiceFindByServiceKey(svcKey);
+        if (microServiceInfo == null) {
+            throw new RuntimeException("无效的svc_key");
         }
+        MicroServiceInstaceInfo microServiceInstaceInfo = new MicroServiceInstaceInfo();
+        microServiceInstaceInfo.setDesc(desc);
+        microServiceInstaceInfo.setServiceKey(svcKey);
+        microServiceInstaceInfo.setUrl(url);
+        microServiceInstaceInfo.setTimeout(timeout);
+        microServiceInstaceInfo.setWeight(weight);
+        snsService.MicroServiceInstaceSave(microServiceInstaceInfo);
+
+        rs.put("id", microServiceInstaceInfo.getId());
+        rs.put("svc_key", microServiceInstaceInfo.getServiceKey());
+        rs.put("desc", microServiceInstaceInfo.getDesc());
+        rs.put("url", microServiceInstaceInfo.getUrl());
+        rs.put("timeout", microServiceInstaceInfo.getTimeout());
+        rs.put("weight", microServiceInstaceInfo.getWeight());
+        return rs;
     }
 
 
     /**
      * 实例注销
      * http://yapi.lonntec.cn/project/20/interface/api/92
+     *
      * @param args
      * @return
      */
@@ -91,25 +72,22 @@ public class ServiceInstanceController {
             String url = args.getString("url");
             String token = args.getString("token");
 
-            MicroServiceInstaceInfo microServiceInstaceInfo = microServiceInstaceInfoRepository.findByUrl(url);
-            if (microServiceInstaceInfo == null) {
-                rs.put("msg", "该URL尚未注册");
-                return rs;
+            MicroServiceInfo microServiceInfo = snsService.MicroServiceFindByServiceKey(serviceKey);
+            if (microServiceInfo == null) {
+                throw new RuntimeException("无效的svc_key");
             }
 
-            MicroServiceInfo microServiceInfo = microServiceInfoRepository.findByServiceName(serviceKey);
-            if (microServiceInfo == null) {
-                rs.put("msg", "无效的svc_key");
-                return rs;
+            MicroServiceInstaceInfo microServiceInstaceInfo = snsService.MicroServiceInstaceFindByUrl(url);
+            if (microServiceInstaceInfo == null) {
+                throw new RuntimeException("无效的URL");
             }
+
             String privateKeyStr = microServiceInfo.getRsa_priKey();
             String decryptUrl = RSAUtils.privateKeyDecrypt(token, privateKeyStr);
             if (decryptUrl != microServiceInstaceInfo.getUrl()) {
-                rs.put("msg", "token错误");
-                return rs;
+                throw new RuntimeException("token错误");
             }
-            microServiceInstaceInfoRepository.delete(microServiceInstaceInfo);
-            rs.put("msg", "delete success");
+            snsService.MicroServiceInstaceDelete(microServiceInstaceInfo);
             return rs;
         } catch (Exception ex) {
             throw new RuntimeException(ex);

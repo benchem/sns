@@ -1,6 +1,4 @@
-package team.benchem.webapi.bean;
-
-import org.springframework.beans.factory.annotation.Value;
+package team.benchem.webapi.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,8 +15,6 @@ public class AccessPermission {
     @Column(name = "FSERVICEKEY")
     private String servceKey;
 
-    @Column(name = "FACCESSTYPE")
-    private int accessType = 0;
 
     @Column(name = "FCALLERKEY")
     private String callerKey;
@@ -26,13 +22,6 @@ public class AccessPermission {
 
     public AccessPermission() {
         id = UUID.randomUUID().toString();
-    }
-
-    public AccessPermission(String servceKey, int accessType, String callerKey) {
-        this.id = UUID.randomUUID().toString();
-        this.servceKey = servceKey;
-        this.accessType = accessType;
-        this.callerKey = callerKey;
     }
 
     public String getId() {
@@ -49,14 +38,6 @@ public class AccessPermission {
 
     public void setServceKey(String servceKey) {
         this.servceKey = servceKey;
-    }
-
-    public int getAccessType() {
-        return accessType;
-    }
-
-    public void setAccessType(int accessType) {
-        this.accessType = accessType;
     }
 
     public String getCallerKey() {
