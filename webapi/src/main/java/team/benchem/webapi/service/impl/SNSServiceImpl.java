@@ -14,18 +14,18 @@ import team.benchem.webapi.service.SNSService;
 
 import java.util.ArrayList;
 
-@Service
+@Service("SNSService")
 @Transactional
 public class SNSServiceImpl implements SNSService {
 
     @Autowired
-    AccessPermissionRepository accessPermissionRepository;
+    private AccessPermissionRepository accessPermissionRepository;
 
     @Autowired
-    MicroServiceInfoRepository microServiceInfoRepository;
+    private MicroServiceInfoRepository microServiceInfoRepository;
 
     @Autowired
-    MicroServiceInstaceInfoRepository microServiceInstaceInfoRepository;
+    private  MicroServiceInstaceInfoRepository microServiceInstaceInfoRepository;
 
     @Override
     public AccessPermission AccessPermissionSave(AccessPermission accessPermission) {
@@ -101,7 +101,8 @@ public class SNSServiceImpl implements SNSService {
 
     @Override
     public ArrayList<MicroServiceInfo> MicroServiceFindAll() {
-        return Lists.newArrayList(microServiceInfoRepository.findAll());
+        Iterable<MicroServiceInfo> rs = microServiceInfoRepository.findAll();
+        return Lists.newArrayList(rs);
     }
 
     @Override
