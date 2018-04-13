@@ -15,7 +15,7 @@ import team.benchem.webapi.service.SNSService;
 import java.util.ArrayList;
 
 @Service("SNSService")
-@Transactional
+
 public class SNSServiceImpl implements SNSService {
 
     @Autowired
@@ -25,26 +25,30 @@ public class SNSServiceImpl implements SNSService {
     private MicroServiceInfoRepository microServiceInfoRepository;
 
     @Autowired
-    private  MicroServiceInstaceInfoRepository microServiceInstaceInfoRepository;
+    private MicroServiceInstaceInfoRepository microServiceInstaceInfoRepository;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public AccessPermission AccessPermissionSave(AccessPermission accessPermission) {
         accessPermissionRepository.save(accessPermission);
         return accessPermission;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ArrayList<AccessPermission> AccessPermissionSaveAll(ArrayList<AccessPermission> accessPermissionArrayList) {
         accessPermissionRepository.saveAll(accessPermissionArrayList);
         return accessPermissionArrayList;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void AccessPermissionDelete(AccessPermission accessPermission) {
         accessPermissionRepository.delete(accessPermission);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void AccessPermissionDeleteAll(ArrayList<AccessPermission> accessPermissionArrayList) {
         accessPermissionRepository.deleteAll(accessPermissionArrayList);
     }
@@ -65,10 +69,34 @@ public class SNSServiceImpl implements SNSService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ArrayList<AccessPermission> WebApiAccessSetDetail(MicroServiceInfo microServiceInfo, ArrayList<AccessPermission> accessPermissionArrayList) {
         accessPermissionRepository.deleteByServceKey(microServiceInfo.getServiceName());
         accessPermissionRepository.saveAll(accessPermissionArrayList);
         return accessPermissionArrayList;
+    }
+
+    @Override
+    // 对所有异常进行事务回滚
+    @Transactional(rollbackFor = Exception.class)
+    public void WebApiSvcUnregister(String key) {
+        MicroServiceInfo microServiceInfo = this.MicroServiceFindByServiceKey(key);
+        if (microServiceInfo == null) {
+            throw new RuntimeException("key 无效，无法找到对应数据");
+        }
+
+        ArrayList<MicroServiceInstaceInfo> microServiceInstaceInfoArrayList = this.MicroServiceInstaceFindAllByServiceKey(key);
+        if (!microServiceInstaceInfoArrayList.isEmpty()) {
+            // 删除相关实例
+            this.MicroServiceInstaceDeleteAll(microServiceInstaceInfoArrayList);
+        }
+        ArrayList<AccessPermission> accessPermissionArrayList = this.AccessPermissionFindAllByServiceKey(key);
+        if (!accessPermissionArrayList.isEmpty()) {
+            // 删除相关权限
+            this.AccessPermissionDeleteAll(accessPermissionArrayList);
+        }
+        // 删除微服务对象
+        this.MicroServiceDelete(microServiceInfo);
     }
 
 
@@ -138,10 +166,10 @@ public class SNSServiceImpl implements SNSService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ArrayList<MicroServiceInstaceInfo> MicroServiceInstaceFindAll() {
         return Lists.newArrayList(microServiceInstaceInfoRepository.findAll());
     }
 
 
-    //
 }

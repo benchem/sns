@@ -8,6 +8,7 @@ import team.benchem.webapi.entity.MicroServiceInstaceInfo;
 import team.benchem.webapi.service.SNSService;
 import team.benchem.webapi.utils.RSAUtils;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/inst")
 public class ServiceInstanceController {

@@ -20,6 +20,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Map;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/svc")
 public class ServicesController {
@@ -102,6 +103,16 @@ public class ServicesController {
     }
 
 
+
+    @PostMapping("/unregister2")
+    public JSONObject unregister2(@RequestBody JSONObject args)  {
+        JSONObject rs = new JSONObject();
+        String key = args.getString("serviceKey");
+        snsService.WebApiSvcUnregister(key);
+        return rs;
+    }
+
+
     /**
      * 获取微服务列表
      * http://yapi.lonntec.cn/project/20/interface/api/71
@@ -151,7 +162,7 @@ public class ServicesController {
         }
 
         // put access info
-        ja.clear();
+        ja = new JSONArray();
         rs.put("access_type", microServiceInfo.getAccessType());
         rs.put("access_list", ja);
         ArrayList<AccessPermission> accessPermissionArrayList = snsService.AccessPermissionFindAllByServiceKey(key);

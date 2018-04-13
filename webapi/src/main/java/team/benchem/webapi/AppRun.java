@@ -6,7 +6,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
+
+import java.lang.annotation.Annotation;
 
 
 @Configuration
@@ -18,3 +22,4 @@ public class AppRun {
         SpringApplication.run(AppRun.class, args);
     }
 }
+

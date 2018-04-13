@@ -57,4 +57,6 @@ public interface SNSService {
 
     // webapi
     ArrayList<AccessPermission> WebApiAccessSetDetail(MicroServiceInfo microServiceInfo, ArrayList<AccessPermission> accessPermissionArrayList);
+
+    void WebApiSvcUnregister(String key);
 }

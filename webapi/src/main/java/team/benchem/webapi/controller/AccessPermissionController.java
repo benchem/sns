@@ -11,6 +11,7 @@ import team.benchem.webapi.service.SNSService;
 
 import java.util.ArrayList;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/access")
 public class AccessPermissionController {
