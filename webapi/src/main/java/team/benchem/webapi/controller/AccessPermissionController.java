@@ -61,9 +61,7 @@ public class AccessPermissionController {
         rs.put("list", ja);
 
         for (AccessPermission accessPermission : accessPermissionArrayList) {
-            JSONObject subObj = new JSONObject();
-            subObj.put("caller_key", accessPermission.getCallerKey());
-            ja.add(subObj);
+            ja.add(accessPermission.getCallerKey());
         }
         return rs;
     }
