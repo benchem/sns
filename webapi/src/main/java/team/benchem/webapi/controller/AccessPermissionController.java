@@ -34,8 +34,8 @@ public class AccessPermissionController {
 
         ArrayList<AccessPermission> accessPermissionArrayList = new ArrayList<>();
         microServiceInfo.setAccessType(accessType);
-        for (Object subObj : callerKeys) {
-            String callerKey = ((JSONObject) subObj).getString("caller_key");
+        for(int i=0; i<callerKeys.size(); i++){
+            String callerKey = (String)callerKeys.get(i);
             AccessPermission accessPermission = new AccessPermission();
             accessPermission.setServceKey(serviceKey);
             accessPermission.setCallerKey(callerKey);
