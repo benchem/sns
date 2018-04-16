@@ -83,11 +83,12 @@ public class ServiceInstanceController {
                 throw new RuntimeException("无效的URL");
             }
 
-            String privateKeyStr = microServiceInfo.getRsa_priKey();
-            String decryptUrl = RSAUtils.privateKeyDecrypt(token, privateKeyStr);
-            if (decryptUrl != microServiceInstaceInfo.getUrl()) {
-                throw new RuntimeException("token错误");
-            }
+            // todo 由于前端RSA公钥加密问题尚未解决，暂时跳过此处token校验
+//            String privateKeyStr = microServiceInfo.getRsa_priKey();
+//            String decryptUrl = RSAUtils.privateKeyDecrypt(token, privateKeyStr);
+//            if (decryptUrl != microServiceInstaceInfo.getUrl()) {
+//                throw new RuntimeException("token错误");
+//            }
             snsService.MicroServiceInstaceDelete(microServiceInstaceInfo);
             return rs;
         } catch (Exception ex) {
