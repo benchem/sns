@@ -23,7 +23,10 @@ hs_err_pid*
 
 # gradle #
 .gradle
+build/
 /build/
+out/
+/out/
 !gradle/wrapper/gradle-wrapper.jar
 
 # IntelliJ IDEA #
@@ -32,7 +35,3 @@ gradle
 *.iws
 *.iml
 *.ipr
-
-# webapi's Build
-/webapi/build/
-/webapi/out/
