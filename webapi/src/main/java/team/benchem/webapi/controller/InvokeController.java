@@ -17,14 +17,13 @@ public class InvokeController {
 
     @RequestMapping("/invoke")
     public JSONObject invoke(
-            @RequestHeader("Suf-MS-Token") String token,
-            @RequestHeader("Suf-MS-InvokeType") InvokeType invokeType,
             @RequestHeader("Suf-MS-SourceServiceName") String sourceServiceName,
+            @RequestHeader("Suf-MS-Token") String token,
             @RequestHeader("Suf-MS-TargetServiceName") String targetServiceName,
+            @RequestHeader("Suf-MS-TargetServicePath") String targetServiceMethodPath,
+            @RequestHeader("Suf-MS-InvokeType") InvokeType invokeType,
             @RequestBody JSONObject formData){
         InvokeToken invokeToken = snsService.serviceVerification(sourceServiceName, targetServiceName, token);
-
-
 
         return formData;
     }

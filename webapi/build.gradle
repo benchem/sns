@@ -10,8 +10,10 @@ dependencies {
     compile("mysql:mysql-connector-java:$mysqlconnectorVersion")
     compile("com.alibaba:fastjson:$fastjsonVersion")
     compile("com.google.guava:guava:$guavaVersion")
+    compile("com.netflix.hystrix:hystrix-core:$hystrixVersion")
+    compile("org.jodd:jodd-http:$joddVersion")
 
-    testCompile group: 'junit', name: 'junit', version: juntVersion
+    testCompile("junit:junit:$juntVersion")
     testCompile("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
     testCompile("com.h2database:h2:$h2Version")
 }
