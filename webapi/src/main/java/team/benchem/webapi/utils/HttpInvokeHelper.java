@@ -15,8 +15,7 @@ public class HttpInvokeHelper {
             params.put(item.getKey(), item.getValue().toString());
         }
         String url = pathUrl(host, path);
-        HttpRequest request = new HttpRequest();
-        request.get(url);
+        HttpRequest request = HttpRequest.get(url);
         if(headers != null && headers.size() > 0){
             request.header(headers);
         }
@@ -30,8 +29,8 @@ public class HttpInvokeHelper {
 
     public static String post(String host, String uri, HashMap<String, String> headers, String postData){
         String url = pathUrl(host, uri);
-        HttpRequest request = new HttpRequest();
-        request.post(url).contentType("application/json", StringPool.UTF_8);
+        HttpRequest request = HttpRequest.post(url);
+        request.contentType("application/json", StringPool.UTF_8);
         if(headers != null && headers.size() > 0){
             request.header(headers);
         }

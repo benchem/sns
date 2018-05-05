@@ -5,6 +5,11 @@ public class Result {
     String errmsg;
     Object result;
 
+    public Result(){
+        statecode = 0;
+        errmsg = "";
+        result = null;
+    }
 
     public Result(Integer statecode, String errmsg) {
         this.statecode = statecode;

@@ -22,7 +22,7 @@ public class InvokeController {
     SNSService snsService;
 
     @RequestMapping("/invoke")
-    public JSONObject invoke(
+    public Object invoke(
             @RequestHeader("Suf-MS-SourceServiceName") String sourceServiceName,
             @RequestHeader("Suf-MS-Token") String token,
             @RequestHeader("Suf-MS-TargetServiceName") String targetServiceName,
@@ -65,8 +65,7 @@ public class InvokeController {
         Result result = JSONObject.parseObject(responseStr).toJavaObject(Result.class);
         if(result.getStatecode() == 0){
             Object resultObj = result.getResult();
-            if(resultObj == null) return new JSONObject();
-            return JSONObject.parseObject(JSONObject.toJSONString(resultObj));
+            return resultObj;
         }else{
             throw new MicroServiceException(new StateCodeImpl(result.getStatecode(), result.getErrmsg()));
         }
