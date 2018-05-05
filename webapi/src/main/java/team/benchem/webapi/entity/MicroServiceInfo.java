@@ -1,8 +1,12 @@
 package team.benchem.webapi.entity;
 
+import team.benchem.webapi.utils.RSAUtils;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity(name = "T_MICROSERVICE")
@@ -22,7 +26,17 @@ public class MicroServiceInfo {
     private int accessType = 0;
 
     public MicroServiceInfo() {
+
         id = UUID.randomUUID().toString();
+
+        try {
+            Map<String, String> rasKeys = RSAUtils.createKeys();
+            setRsa_priKey(rasKeys.get(RSAUtils.PRIVATE_NAME));
+            setRsa_pubKey(rasKeys.get(RSAUtils.PUBLICKEY_NAME));
+        } catch (NoSuchAlgorithmException e) {
+            //ignore
+        }
+
     }
 
 

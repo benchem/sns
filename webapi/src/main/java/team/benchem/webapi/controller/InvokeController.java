@@ -23,6 +23,9 @@ public class InvokeController {
             @RequestHeader("Suf-MS-TargetServiceName") String targetServiceName,
             @RequestBody JSONObject formData){
         InvokeToken invokeToken = snsService.serviceVerification(sourceServiceName, targetServiceName, token);
+
+
+
         return formData;
     }
 

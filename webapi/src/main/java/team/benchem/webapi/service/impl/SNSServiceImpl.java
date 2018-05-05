@@ -195,7 +195,7 @@ public class SNSServiceImpl implements SNSService {
                     requestToken,
                     sourceInfo.getRsa_priKey()
             );
-            if(decodeKey != sourceServiceName){
+            if(!decodeKey.equals(sourceServiceName)){
                 throw new MicroServiceException(InvokeStateCode.Auth_Denied);
             }
         } catch (Exception e) {
@@ -206,6 +206,36 @@ public class SNSServiceImpl implements SNSService {
         if(targetInfo == null){
             throw new MicroServiceException(InvokeStateCode.TargetService_NotFound);
         }
+
+        int accessType = targetInfo.getAccessType();
+        if(accessType == 1){
+            //白名单
+            List<AccessPermission> writeList = AccessPermissionFindAllByServiceKey(targetServiceName);
+            Boolean isWriteName = false;
+            for(AccessPermission item : writeList){
+                if(sourceServiceName.equals( item.getCallerKey())){
+                    isWriteName = true;
+                    break;
+                }
+            }
+            if(!isWriteName){
+                throw new MicroServiceException(InvokeStateCode.Auth_Denied);
+            }
+        } else if(accessType == 2){
+            //黑名单
+            List<AccessPermission> blackList = AccessPermissionFindAllByServiceKey(targetServiceName);
+            Boolean isBlackName = false;
+            for(AccessPermission item : blackList){
+                if(sourceServiceName.equals( item.getCallerKey())){
+                    isBlackName = true;
+                    break;
+                }
+            }
+            if(isBlackName){
+                throw new MicroServiceException(InvokeStateCode.Auth_Denied);
+            }
+        }
+
         List<MicroServiceInstaceInfo> instanceList = microServiceInstaceInfoRepository.findAllByServiceKey(targetServiceName);
         if(instanceList == null || instanceList.size() == 0){
             throw new MicroServiceException(InvokeStateCode.TargetService_InstanceNotFound);
