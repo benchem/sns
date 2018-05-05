@@ -5,27 +5,25 @@ import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 
 import java.util.HashMap;
-import java.util.Map;
 
-
-public class HttpGetHystrixCommand extends HystrixCommand<String> {
+public class HttpPostHystrixCommand extends HystrixCommand<String> {
 
     private final String host;
     private final String path;
-    private HashMap<String, String> headers;
-    private final HashMap<String, Object> pararms;
+    private final HashMap<String, String> headers;
+    private final String requestBody;
 
-    public HttpGetHystrixCommand(String host, String path, HashMap<String, String> headers, HashMap<String, Object> pararms){
+    public HttpPostHystrixCommand(String host, String path, HashMap<String, String> headers, String requestBody){
         super(HystrixCommandGroupKey.Factory.asKey("MicroServicesRemoteInvoke"));
         this.host = host;
         this.path = path;
         this.headers = headers;
-        this.pararms = pararms;
+        this.requestBody = requestBody;
     }
 
     @Override
     protected String run() throws Exception {
-        return HttpInvokeHelper.get(host, path, headers, pararms);
+        return HttpInvokeHelper.post(host, path, headers, requestBody);
     }
 
     @Override
