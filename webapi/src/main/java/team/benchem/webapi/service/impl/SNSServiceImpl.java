@@ -4,15 +4,27 @@ import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sun.management.counter.Units;
 import team.benchem.webapi.entity.AccessPermission;
+import team.benchem.webapi.entity.InvokeToken;
 import team.benchem.webapi.entity.MicroServiceInfo;
 import team.benchem.webapi.entity.MicroServiceInstaceInfo;
 import team.benchem.webapi.repository.AccessPermissionRepository;
 import team.benchem.webapi.repository.MicroServiceInfoRepository;
 import team.benchem.webapi.repository.MicroServiceInstaceInfoRepository;
 import team.benchem.webapi.service.SNSService;
+import team.benchem.webapi.utils.InvokeStateCode;
+import team.benchem.webapi.utils.MicroServiceException;
+import team.benchem.webapi.utils.RSAUtils;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+import java.util.List;
 
 @Service("SNSService")
 
@@ -171,5 +183,75 @@ public class SNSServiceImpl implements SNSService {
         return Lists.newArrayList(microServiceInstaceInfoRepository.findAll());
     }
 
+    @Override
+    public InvokeToken serviceVerification(String sourceServiceName, String targetServiceName, String requestToken) {
+        MicroServiceInfo sourceInfo = microServiceInfoRepository.findByServiceName(sourceServiceName);
+        if(sourceInfo == null){
+            throw new MicroServiceException(InvokeStateCode.SourceService_NotFound);
+        }
 
+        try {
+            String decodeKey = RSAUtils.privateKeyDecrypt(
+                    requestToken,
+                    sourceInfo.getRsa_priKey()
+            );
+            if(!decodeKey.equals(sourceServiceName)){
+                throw new MicroServiceException(InvokeStateCode.Auth_Denied);
+            }
+        } catch (Exception e) {
+            throw new MicroServiceException(InvokeStateCode.Auth_Denied);
+        }
+
+        MicroServiceInfo targetInfo = microServiceInfoRepository.findByServiceName(targetServiceName);
+        if(targetInfo == null){
+            throw new MicroServiceException(InvokeStateCode.TargetService_NotFound);
+        }
+
+        int accessType = targetInfo.getAccessType();
+        if(accessType == 1){
+            //白名单
+            List<AccessPermission> writeList = AccessPermissionFindAllByServiceKey(targetServiceName);
+            Boolean isWriteName = false;
+            for(AccessPermission item : writeList){
+                if(sourceServiceName.equals( item.getCallerKey())){
+                    isWriteName = true;
+                    break;
+                }
+            }
+            if(!isWriteName){
+                throw new MicroServiceException(InvokeStateCode.Auth_Denied);
+            }
+        } else if(accessType == 2){
+            //黑名单
+            List<AccessPermission> blackList = AccessPermissionFindAllByServiceKey(targetServiceName);
+            Boolean isBlackName = false;
+            for(AccessPermission item : blackList){
+                if(sourceServiceName.equals( item.getCallerKey())){
+                    isBlackName = true;
+                    break;
+                }
+            }
+            if(isBlackName){
+                throw new MicroServiceException(InvokeStateCode.Auth_Denied);
+            }
+        }
+
+        List<MicroServiceInstaceInfo> instanceList = microServiceInstaceInfoRepository.findAllByServiceKey(targetServiceName);
+        if(instanceList == null || instanceList.size() == 0){
+            throw new MicroServiceException(InvokeStateCode.TargetService_InstanceNotFound);
+        }
+
+        String encodekey ;
+        try {
+            encodekey= RSAUtils.privateKeyEncrypt(sourceServiceName, targetInfo.getRsa_priKey());
+        } catch (Exception e) {
+            throw new MicroServiceException(InvokeStateCode.Auth_Denied);
+        }
+
+        //todo 加权选择算法
+        return new InvokeToken(
+                instanceList.get(0).getUrl(),
+                encodekey
+        );
+    }
 }

@@ -1,6 +1,7 @@
 package team.benchem.webapi.service;
 
 import team.benchem.webapi.entity.AccessPermission;
+import team.benchem.webapi.entity.InvokeToken;
 import team.benchem.webapi.entity.MicroServiceInfo;
 import team.benchem.webapi.entity.MicroServiceInstaceInfo;
 
@@ -59,4 +60,11 @@ public interface SNSService {
     ArrayList<AccessPermission> WebApiAccessSetDetail(MicroServiceInfo microServiceInfo, ArrayList<AccessPermission> accessPermissionArrayList);
 
     void WebApiSvcUnregister(String key);
+
+    //服务验权
+    //@param sourceServiceName 发起远程调用的微服务名称
+    //@param targetServiceName 被请求调用的微服务名称
+    //@param requestToken 发起远程调用的微服务凭证
+    //@return 远程服务调用令牌
+    InvokeToken serviceVerification(String sourceServiceName, String targetServiceName, String requestToken);
 }
